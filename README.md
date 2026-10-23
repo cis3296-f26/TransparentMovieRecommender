@@ -88,3 +88,4 @@ While developing, start the server with `flask --app poc run --debug` instead to
 
 Double-click `run.bat` in the repository folder. The server runs at http://127.0.0.1:5000, and you can check it the same way as above. Press Ctrl+C to stop it.
 
+Project board is created under 'Projects' section in GitHub
