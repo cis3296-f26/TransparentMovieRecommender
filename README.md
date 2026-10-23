@@ -4,11 +4,13 @@ What's Next is a web-based movie recommender that explains every suggestion it m
 
 **Current status:** proof of concept. The app loads the MovieLens data and serves rating statistics for a given movie through a single endpoint. Recommendation features are in development.
 
-Developed and tested on macOS 15.7.9 with Python 3.13.9.
+Developed and tested on macOS 15.7.9 with Python 3.13.9. The Windows scripts were tested on Windows 11 with Python 3.13.
 
 ## Installation
 
-You need Python 3 and Git installed. The commands below are for macOS and Linux.
+You need Git installed. On macOS and Linux you also need Python 3. On Windows, the setup script installs Python for you if it's missing.
+
+### macOS and Linux
 
 1. Clone the repository and enter it:
 
@@ -39,11 +41,23 @@ You need Python 3 and Git installed. The commands below are for macOS and Linux.
    mv ml-latest-small/ratings.csv ml-latest-small/movies.csv data/
    ```
 
+### Windows (10 and 11)
+
+1. Clone the repository:
+
+   ```
+   git clone https://github.com/cis3296-f26/TransparentMovieRecommender.git
+   ```
+
+2. Open the `TransparentMovieRecommender` folder and double-click `setup.bat`. It installs Python 3.13 with winget if Python is missing, creates the virtual environment, installs the dependencies, and downloads the MovieLens data into `data\`. Running it again skips any steps that are already done.
+
 ## Build
 
 What's Next is written in Python, so there is no compile step. Installing the dependencies above is the full build.
 
 ## Run
+
+### macOS and Linux
 
 With the virtual environment active, start the server from the repository folder:
 
@@ -69,3 +83,8 @@ It should return the title, average rating, and number of ratings for The Matrix
 ```
 
 While developing, start the server with `flask --app poc run --debug` instead to get automatic reloading and detailed error pages.
+
+### Windows
+
+Double-click `run.bat` in the repository folder. The server runs at http://127.0.0.1:5000, and you can check it the same way as above. Press Ctrl+C to stop it.
+
