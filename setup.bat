@@ -1,8 +1,8 @@
 @echo off
 rem Sets up What's Next on Windows: Python, virtual environment, dependencies, and MovieLens data.
 cd /d "%~dp0"
-if not exist poc.py (
-    echo This script must be in the TransparentMovieRecommender folder, next to poc.py.
+if not exist app.py (
+    echo This script must be in the TransparentMovieRecommender folder, next to app.py.
     goto :error
 )
 
