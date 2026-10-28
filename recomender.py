@@ -1,0 +1,54 @@
+"""Recommender system module."""
+
+import numpy as np
+import pandas as pd
+
+class CollaborativeFilter:
+    """Item-based collaborative filtering class."""
+
+    def __init__(self, ratings: pd.DataFrame, min_ratings: int = 5):
+        """Initialize the CollaborativeFiltering class.
+
+        Args:
+            ratings (pd.DataFrame): User-movie ratings DataFrame.
+            min_ratings (int): Minimum number of ratings for a movie to be considered.
+        """
+        self._min_ratings = min_ratings
+        self._movie_vectors = ...
+
+    def recommend(self, user_ratings: dict[int, float], n: int = 5) -> pd.Series:
+        """Recommend movies based on user ratings.
+
+        Args:
+            user_ratings (dict[int, float]): User ratings for movies.
+            n (int): Number of recommendations to return.
+
+        Returns:
+            pd.Series: Recommended movies with their predicted ratings.
+        """
+        raise NotImplementedError("The recommend method is not implemented yet.")
+
+    def _similarities(self, movie_ids: list[int]) -> pd.DataFrame:
+        """Compute similarity scores between movies.
+
+        Args:
+            movie_ids (list[int]): List of movie IDs to compute similarities for.
+
+        Returns:
+            pd.DataFrame: DataFrame containing similarity scores between movies.
+        """
+        raise NotImplementedError("The _similarities method is not implemented yet.")
+    
+    @staticmethod
+    def _weighted_sum(similarities: pd.DataFrame, user_ratings: dict[int, float]) -> pd.Series:
+        """Compute weighted sum of ratings based on similarities.
+
+        Args:
+            similarities (pd.DataFrame): DataFrame containing similarity scores.
+            user_ratings (dict[int, float]): User ratings for movies.
+
+        Returns:
+            pd.Series: Weighted sum of ratings for each movie.
+        """
+        raise NotImplementedError("The _weighted_sum method is not implemented yet.")
+
