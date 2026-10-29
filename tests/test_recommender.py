@@ -30,8 +30,34 @@ def test_movie_vectors_are_correct():
     assert cf._movie_vectors.loc[10, 1] == pytest.approx(5 / norm), "Movie 10's entry for user 1 is incorrect."
     assert cf._movie_vectors.loc[10, 2] == pytest.approx(3 / norm), "Movie 10's entry for user 2 is incorrect."
 
-def test_similarity_to_itself_is_1(): ...
-def test_similarities_are_between_0_and_1(): ...
-def test_matches_hand_worked_example(): ...  
-def test_movies_below_cutoff_are_skipped(): ...
-def test_one_row_per_requested_movie(): ...
+def test_similarity_to_itself_is_1(): 
+    """Test that the similarity of a movie to itself is 1."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    similarities = cf._similarities([10])
+    assert similarities.loc[10, 10] == pytest.approx(1), "A movie's similarity to itself should be 1."
+
+def test_similarities_are_between_0_and_1():
+    """Test that similarity scores are between 0 and 1."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    similarities = cf._similarities([10, 20])
+    assert (similarities.to_numpy() >= 0).all() and (similarities.to_numpy() <= 1 + 1e-9).all(), "All similarity scores should be between 0 and 1."
+
+def test_matches_hand_worked_example():
+    """Test that the similarity scores match a hand-worked example."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    similarities = cf._similarities([10, 20])
+    expected_similarity = (5*3 + 3*5) / (np.sqrt(5**2 + 3**2) * np.sqrt(3**2 + 5**2))
+    assert similarities.loc[10, 20] == pytest.approx(expected_similarity), "Movies 10 and 20 should have similarity 30/34."
+
+def test_movies_not_in_matrix_are_skipped():
+    """Test that movies not in the matrix are skipped when computing similarities."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    similarities = cf._similarities([10, 20, 999])  
+    assert list(cf._similarities([10, 20, 999]).index) == [10, 20], "Movie 999 should be skipped as it is not in the movie vectors."
+
+def test_one_row_per_requested_movie():
+    """Test that the resulting DataFrame has one row per requested movie and one column per movie in the matrix."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    similarities = cf._similarities([10, 20])
+    assert list(similarities.index) == [10, 20], "The resulting DataFrame should have one row per requested movie."
+    assert list(similarities.columns) == [10, 20, 30], "The resulting DataFrame should have one column per movie in the matrix." 

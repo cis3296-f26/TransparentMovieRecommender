@@ -40,15 +40,19 @@ class CollaborativeFilter:
         raise NotImplementedError("The recommend method is not implemented yet.")
 
     def _similarities(self, movie_ids: list[int]) -> pd.DataFrame:
-        """Compute similarity scores between movies.
+        """Compute the similarity scores between the given movies and all other movies.
 
         Args:
             movie_ids (list[int]): List of movie IDs to compute similarities for.
 
         Returns:
-            pd.DataFrame: DataFrame containing similarity scores between movies.
+            pd.DataFrame: DataFrame containing similarity scores between the given movies and all other movies.
         """
-        raise NotImplementedError("The _similarities method is not implemented yet.")
+        # Filter out movie IDs that are not in the movie vectors
+        valid_movie_ids = [movie_id for movie_id in movie_ids if movie_id in self._movie_vectors.index]
+
+        # Compute the dot product of the movie vectors for the valid movie IDs
+        return self._movie_vectors.loc[valid_movie_ids].dot(self._movie_vectors.T)
     
     @staticmethod
     def _weighted_sum(similarities: pd.DataFrame, user_ratings: dict[int, float]) -> pd.Series:
