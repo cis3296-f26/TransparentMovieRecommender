@@ -4,17 +4,28 @@ import numpy as np
 import pandas as pd
 
 class CollaborativeFilter:
-    """Item-based collaborative filtering class."""
+    """Item-based collaborative filter class."""
 
-    def __init__(self, ratings: pd.DataFrame, min_ratings: int = 5):
-        """Initialize the CollaborativeFiltering class.
+    def __init__(self, ratings: pd.DataFrame, min_ratings: int = 10):
+        """Initialize the CollaborativeFilter class.
 
         Args:
             ratings (pd.DataFrame): User-movie ratings DataFrame.
             min_ratings (int): Minimum number of ratings for a movie to be considered.
         """
         self._min_ratings = min_ratings
-        self._movie_vectors = ...
+
+        # Filter out movies with fewer than min_ratings
+        rating_count = ratings.groupby('movieId').size() # Count the number of ratings for each movie
+        valid_movies = rating_count[rating_count >= self._min_ratings].index # Get movie IDs with enough ratings
+        new_ratings = ratings[ratings['movieId'].isin(valid_movies)] 
+
+        # Create a user-movie matrix: rows are movies, columns are users, and values are ratings
+        matrix = new_ratings.pivot_table(index='movieId', columns='userId', values='rating', fill_value=0)
+
+        # Divide each row by its geometric length to normalize the movie vectors
+        row_lengths = np.linalg.norm(matrix.to_numpy(), axis=1, keepdims=True) 
+        self._movie_vectors = matrix / row_lengths
 
     def recommend(self, user_ratings: dict[int, float], n: int = 5) -> pd.Series:
         """Recommend movies based on user ratings.
