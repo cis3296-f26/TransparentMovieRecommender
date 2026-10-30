@@ -1,8 +1,8 @@
 @echo off
 rem Starts the What's Next server on Windows.
-cd /d "%~dp0"
-if not exist app.py (
-    echo This script must be in the TransparentMovieRecommender folder, next to app.py.
+cd /d "%~dp0.."
+if not exist back-end\app.py (
+    echo This script must be in the back-end folder, next to app.py.
     goto :error
 )
 
@@ -14,7 +14,7 @@ if not exist data\movies.csv goto :not_setup
 echo Starting server at http://127.0.0.1:5000
 echo Press Ctrl+C to stop it.
 echo.
-venv\Scripts\python app.py
+venv\Scripts\python back-end\app.py
 pause
 exit /b 0
 

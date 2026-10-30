@@ -29,7 +29,7 @@ You need Git installed. On macOS and Linux you also need Python 3. On Windows, t
 3. Install the dependencies:
 
    ```
-   pip install -r requirements.txt
+   pip install -r back-end/requirements.txt
    ```
 
 4. Download the MovieLens ml-latest-small dataset and move the files the app uses into `data/`:
@@ -49,7 +49,7 @@ You need Git installed. On macOS and Linux you also need Python 3. On Windows, t
    git clone https://github.com/cis3296-f26/TransparentMovieRecommender.git
    ```
 
-2. Open the `TransparentMovieRecommender` folder and double-click `setup.bat`. It installs Python 3.13 with winget if Python is missing, creates the virtual environment, installs the dependencies, and downloads the MovieLens data into `data\`. Running it again skips any steps that are already done.
+2. Open the `TransparentMovieRecommender\back-end` folder and double-click `setup.bat`. It installs Python 3.13 with winget if Python is missing, creates the virtual environment, installs the dependencies, and downloads the MovieLens data into `data\`. Running it again skips any steps that are already done.
 
 ## Build
 
@@ -62,7 +62,7 @@ What's Next is written in Python, so there is no compile step. Installing the de
 With the virtual environment active, start the server from the repository folder:
 
 ```
-python app.py
+python back-end/app.py
 ```
 
 The server runs at http://127.0.0.1:5000. To check that it works, open http://127.0.0.1:5000/movie/2571 in a browser, or run this from a second terminal:
@@ -82,10 +82,10 @@ It should return the title, average rating, and number of ratings for The Matrix
 }
 ```
 
-While developing, start the server with `flask run --debug` instead to get automatic reloading and detailed error pages.
+While developing, start the server with `flask --app back-end/app run --debug` instead to get automatic reloading and detailed error pages.
 
 ### Windows
 
-Double-click `run.bat` in the repository folder. The server runs at http://127.0.0.1:5000, and you can check it the same way as above. Press Ctrl+C to stop it.
+Double-click `run.bat` in the `back-end` folder. The server runs at http://127.0.0.1:5000, and you can check it the same way as above. Press Ctrl+C to stop it.
 
 Project board is created under 'Projects' section in GitHub

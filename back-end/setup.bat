@@ -1,8 +1,8 @@
 @echo off
 rem Sets up What's Next on Windows: Python, virtual environment, dependencies, and MovieLens data.
-cd /d "%~dp0"
-if not exist app.py (
-    echo This script must be in the TransparentMovieRecommender folder, next to app.py.
+cd /d "%~dp0.."
+if not exist back-end\app.py (
+    echo This script must be in the back-end folder, next to app.py.
     goto :error
 )
 
@@ -30,7 +30,7 @@ if not exist venv (
 )
 
 echo Installing dependencies...
-venv\Scripts\python -m pip install -r requirements.txt || goto :error
+venv\Scripts\python -m pip install -r back-end\requirements.txt || goto :error
 
 if exist data\ratings.csv if exist data\movies.csv (
     echo MovieLens data already present, skipping download.
