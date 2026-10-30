@@ -1,7 +1,9 @@
 from pathlib import Path
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import pandas as pd
 import numpy as np
+
+from search import search_titles
 
 FRONTEND = Path(__file__).resolve().parent.parent / "front-end" / "dist"
 
@@ -33,6 +35,13 @@ def movie(movie_id):
         "average_rating": float(np.mean(this_movie.rating)),
         "num_ratings": int(np.size(this_movie.rating)),
     })
+
+# flask creates an HTTP endpoint that returns up to 10 movies whose title matches ?q=
+@app.route("/search")
+def search():
+    query = request.args.get("q", "")
+    results = search_titles(movies, ratings, query)
+    return jsonify(results)
 
 
 if __name__ == "__main__":
