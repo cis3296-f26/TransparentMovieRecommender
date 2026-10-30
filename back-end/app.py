@@ -1,10 +1,17 @@
+from pathlib import Path
 from flask import Flask, jsonify, request
 import pandas as pd
 import numpy as np
 
 from search import search_titles
 
-app = Flask(__name__)
+FRONTEND = Path(__file__).resolve().parent.parent / "front-end" / "dist"
+
+app = Flask(__name__, static_folder=str(FRONTEND), static_url_path="")
+
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
 
 # pandas loads MovieLens CSVs
 ratings = pd.read_csv("data/ratings.csv")   

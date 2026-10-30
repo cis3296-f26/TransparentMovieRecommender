@@ -1,0 +1,44 @@
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.subtitle {
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.moviesSection {
+  margin-top: 2rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.resetFilterBtn {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.resetFilterBtn:hover {
+  filter: brightness(1.05);
+}

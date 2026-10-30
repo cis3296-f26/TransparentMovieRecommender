@@ -1,0 +1,42 @@
+export const TEST_MOVIES = [
+  {
+    id: 1,
+    title: 'Pulp Fiction',
+    year: 1994,
+    genre: 'Crime / Drama',
+    rating: 8.9,
+    overview: 'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.',
+  },
+  {
+    id: 2,
+    title: 'Donnie Darko',
+    year: 2001,
+    genre: 'Drama / Mystery / Sci-Fi',
+    rating: 8.0,
+    overview: 'After narrowly escaping a bizarre accident, a troubled teenager is plagued by visions of a man in a large rabbit suit who manipulates him into committing crimes.',
+  },
+  {
+    id: 3,
+    title: 'Interstellar',
+    year: 2014,
+    genre: 'Adventure / Drama / Sci-Fi',
+    rating: 8.7,
+    overview: 'When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.',
+  },
+  {
+    id: 4,
+    title: 'Fight Club',
+    year: 1999,
+    genre: 'Drama',
+    rating: 8.8,
+    overview: 'An insomniac office worker looking for a way to change his life crosses paths with a devil-may-care soap maker and forms an underground fight club that evolves into something much more.',
+  },
+  {
+    id: 5,
+    title: '2001: A Space Odyssey',
+    year: 1968,
+    genre: 'Adventure / Sci-Fi',
+    rating: 8.3,
+    overview: 'After discovering a mysterious artifact buried beneath the Lunar surface, a spacecraft is sent to Jupiter to find its origins, manned by two men and the supercomputer H.A.L. 9000.',
+  },
+]

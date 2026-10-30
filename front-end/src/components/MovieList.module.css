@@ -1,0 +1,91 @@
+/* styling for movie list */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.empty {
+  margin-top: 1.5rem;
+  color: var(--text);
+  font-style: italic;
+}
+
+.card {
+  padding: 1.25rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background-color: var(--bg);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.year {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.overview {
+  font-size: 0.95rem;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.genre {
+  color: var(--accent);
+}
+
+.ratingBadges {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rating {
+  color: var(--text-h);
+}
+
+.userRatingBadge {
+  background-color: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
