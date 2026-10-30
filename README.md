@@ -62,7 +62,7 @@ What's Next is written in Python, so there is no compile step. Installing the de
 With the virtual environment active, start the server from the repository folder:
 
 ```
-python poc.py
+python app.py
 ```
 
 The server runs at http://127.0.0.1:5000. To check that it works, open http://127.0.0.1:5000/movie/2571 in a browser, or run this from a second terminal:
@@ -82,7 +82,7 @@ It should return the title, average rating, and number of ratings for The Matrix
 }
 ```
 
-While developing, start the server with `flask --app poc run --debug` instead to get automatic reloading and detailed error pages.
+While developing, start the server with `flask run --debug` instead to get automatic reloading and detailed error pages.
 
 ### Windows
 
