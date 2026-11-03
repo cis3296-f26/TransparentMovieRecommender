@@ -77,4 +77,17 @@ class CollaborativeFilter:
         Returns:
             pd.Series: Contribution of each rated movie to the recommendation of the specified movie.
         """
-        raise NotImplementedError("The breakdown method is not implemented yet.")
+        # Compute similarities between the given movie and all other movies
+        similarities = self._similarities([movie_id])
+
+        # Filter out rated movies that are not in the movie vectors
+        rated_movie_ids = [movie for movie in user_ratings if movie in similarities.columns]
+
+        # Get the similarities for the rated movies and filter out zero similarities
+        rated_similarities = similarities.loc[movie_id, rated_movie_ids]
+        rated_similarities = rated_similarities[rated_similarities != 0]
+
+        # Compute the weights by normalizing the similarities
+        weights = rated_similarities / rated_similarities.sum()
+        return weights.sort_values(ascending=False)
+    
