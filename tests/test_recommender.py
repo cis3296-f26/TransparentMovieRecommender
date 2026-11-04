@@ -62,7 +62,34 @@ def test_similarities_one_row_per_requested_movie():
     assert list(similarities.index) == [10, 20], "The resulting DataFrame should have one row per requested movie."
     assert list(similarities.columns) == [10, 20, 30], "The resulting DataFrame should have one column per movie in the matrix." 
 
-def test_breakdown_matches_hand_worked_example(): ...
-def test_breakdown_weights_add_up_to_1(): ...
-def test_breakdown_is_sorted_largest_first(): ...
-def test_breakdown_leaves_out_movies_with_no_similarity(): ...
+def test_breakdown_matches_hand_worked_example(): 
+    """Test that the breakdown matches a hand-worked example."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    breakdown = cf.breakdown({10: 4.0, 20: 2.5}, 30)
+    assert breakdown[10] == pytest.approx(5/(5+3)), "30 similarity to 10 is 5/(34)^1/2"
+    assert breakdown[20] == pytest.approx(3/(5+3)), "30 similarity to 20 is 3/(34)^1/2"
+
+def test_breakdown_weights_add_up_to_1(): 
+    """Test that the weights in the breakdown add up to 1."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    breakdown = cf.breakdown({10: 4.0, 20: 2.5}, 30)
+    assert breakdown.sum() == pytest.approx(1), "The weights in the breakdown should add up to 1."
+
+def test_breakdown_is_sorted_largest_first(): 
+    """Test that the breakdown is sorted with the largest contribution first."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    breakdown = cf.breakdown({20: 2.5, 10: 4.0}, 30)
+    assert list(breakdown.index) == [10, 20], "The breakdown should be sorted with the largest contribution first."
+
+def test_breakdown_leaves_out_movies_not_in_matrix(): 
+    """Test that the breakdown leaves out movies not in the movie vectors."""
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    breakdown = cf.breakdown({10: 4.0, 20: 2.5, 999: 5.0}, 30)
+    assert list(breakdown.index) == [10, 20], "Movie 999 should be left out of the breakdown as it is not in the movie vectors."
+
+def test_breakdown_leaves_out_movies_with_no_similarity(): 
+    """Test that the breakdown leaves out movies with no similarity to the target movie."""
+    ratings = pd.concat([TEST_RATINGS, pd.DataFrame([(3, 40, 5.0)], columns=["userId", "movieId", "rating"])])
+    cf = CollaborativeFilter(ratings, min_ratings=1)
+    breakdown = cf.breakdown({10: 4.0, 20: 2.5, 40: 5.0}, 30)
+    assert list(breakdown.index) == [10, 20], "Movie 40 should be left out of the breakdown as it has no similarity to movie 30."
