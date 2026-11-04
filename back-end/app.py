@@ -2,10 +2,8 @@ from pathlib import Path
 from flask import Flask, jsonify, request
 import pandas as pd
 import numpy as np
-import sys
 from MovieCatalog import MovieCatalog
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 FRONTEND = Path(__file__).resolve().parent.parent / "front-end" / "dist"
 
 from recommender import CollaborativeFilter
@@ -47,14 +45,6 @@ def search():
     query = request.args.get("q", "")
     results = movies.search_titles(query)
     return jsonify(results)
-
-
-#Start of changes
-
-@app.route("/test-ratings", methods=["POST"])
-def test_ratings():
-    data = request.get_json()
-    return jsonify(data)
 
 @app.route("/recommendations", methods=["POST"])
 def recommendations():

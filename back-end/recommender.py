@@ -82,9 +82,9 @@ class CollaborativeFilter:
             weighted_total = 0
             similarity_total = 0
 
-            for movie_id, rating in user_ratings.items():
+            for movie_id in similarities.index:
                 similarity = similarities.loc[movie_id, candidate_id]
-                weighted_total += rating * similarity
+                weighted_total += user_ratings[movie_id] * similarity
                 similarity_total += similarity
 
             if similarity_total > 0:
