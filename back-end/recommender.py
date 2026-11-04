@@ -37,7 +37,17 @@ class CollaborativeFilter:
         Returns:
             pd.Series: Recommended movies with their predicted ratings.
         """
-        raise NotImplementedError("The recommend method is not implemented yet.")
+        movie_ids = list(user_ratings.keys())
+
+        similarities = self._similarities(movie_ids)
+
+        predictions = self._weighted_sum(similarities, user_ratings)
+
+        predictions = predictions.drop(index=movie_ids, errors="ignore")
+
+        predictions = predictions.sort_values(ascending=False)
+
+        return predictions.head(min(n, 10))
 
     def _similarities(self, movie_ids: list[int]) -> pd.DataFrame:
         """Compute the similarity scores between the given movies and all other movies.
@@ -65,17 +75,32 @@ class CollaborativeFilter:
         Returns:
             pd.Series: Weighted sum of ratings for each movie.
         """
-        raise NotImplementedError("The _weighted_sum method is not implemented yet.")
+        predictions = {}
+
+        for candidate_id in similarities.columns:
+            weighted_total = 0
+            similarity_total = 0
+
+            for movie_id in similarities.index:
+                similarity = similarities.loc[movie_id, candidate_id]
+                weighted_total += user_ratings[movie_id] * similarity
+                similarity_total += similarity
+
+            if similarity_total > 0:
+                predicted_rating = weighted_total / similarity_total
+                predictions[candidate_id] = predicted_rating
+
+        return pd.Series(predictions, dtype=float)
     
     def breakdown(self, user_ratings: dict[int, float], movie_id: int) -> pd.Series:
         """Compute how much each of the user's ratings contributed to one movie's recommendation.
-
-        Args: 
-            user_ratings (dict[int, float]): User ratings for movies.
-            movie_id (int): Movie ID for which to compute the breakdown.
         
+        Args:
+            user_ratings (dict[int, float]): User ratings for movies.
+            movie_id (int): ID of a recommended movie.
+
         Returns:
-            pd.Series: Contribution of each rated movie to the recommendation of the specified movie.
+            pd.Series: Weight of each rated movie that counted, indexed by movie ID and sorted largest first. The weights add up to 1.
         """
         # Compute similarities between the given movie and all other movies
         similarities = self._similarities([movie_id])
@@ -90,4 +115,3 @@ class CollaborativeFilter:
         # Compute the weights by normalizing the similarities
         weights = rated_similarities / rated_similarities.sum()
         return weights.sort_values(ascending=False)
-    

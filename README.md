@@ -2,6 +2,8 @@
 
 What's Next is a web-based movie recommender that explains every suggestion it makes. Users rate movies they've seen, then choose between item-based collaborative filtering and content-based filtering to get a ranked list of recommendations. For each recommendation, the app shows which of the user's ratings contributed to it and lets them remove any rating's influence. No account or imported viewing history is required. Recommendations are built from the [MovieLens](https://grouplens.org/datasets/movielens/) dataset.
 
+**Live site:** https://whats-next-w3q5.onrender.com
+
 **Current status:** proof of concept. The app loads the MovieLens data and serves rating statistics for a given movie through a single endpoint. Recommendation features are in development.
 
 Developed and tested on macOS 15.7.9 with Python 3.13.9. The Windows scripts were tested on Windows 11 with Python 3.13.
