@@ -48,8 +48,8 @@ def search():
 
 @app.route("/recommendations", methods=["POST"])
 def recommendations():
-    data = request.get_json()
-    user_ratings = data["ratings"]
+    data = request.get_json() or {}
+    user_ratings = data.get("ratings", {})
 
     converted_ratings = {}
 
@@ -63,6 +63,7 @@ def recommendations():
     for movie_id, rating in predictions.items():
         results.append({
             "movieId": int(movie_id),
+            "title": movies.title(int(movie_id)),
             "predicted_rating": float(rating)
         })
 

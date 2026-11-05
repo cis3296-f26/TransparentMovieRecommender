@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SearchBox from './components/SearchBox'
 import MovieList from './components/MovieList'
 import RatedMovies from './components/RatedMovies'
+import Recommendations from './components/Recommendations'
 import { TEST_MOVIES } from './sampleMovieList.js'
 import './App.css'
 
@@ -18,17 +19,48 @@ function App() {
     return map
   })
 
-  const handleSearch = (searchTerm) => {
-    const query = (searchTerm || '').trim().toLowerCase()
+  const handleSearch = async (searchTerm) => {
+    const query = (searchTerm || '').trim()
     if (!query) {
       setMovies(TEST_MOVIES)
       return
     }
+
+    try {
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}`)
+      if (res.ok) {
+        const backendResults = await res.json()
+        if (Array.isArray(backendResults) && backendResults.length > 0) {
+          const normalizedMovies = backendResults.map((item) => {
+            const yearMatch = item.title.match(/\s*\((\d{4})\)$/)
+            const year = yearMatch ? parseInt(yearMatch[1], 10) : 'N/A'
+            const cleanTitle = item.title.replace(/\s*\(\d{4}\)$/, '')
+
+            return {
+              id: item.movieId,
+              title: cleanTitle,
+              year: year,
+              genre: 'N/A',
+              rating: 'N/A',
+              numRatings: item.num_ratings,
+              overview: 'Overview not available yet.',
+            }
+          })
+
+          setMovies(normalizedMovies)
+          return
+        }
+      }
+    } catch {
+      // Fallback to local sample movie list when backend /search is unreachable
+    }
+
+    const lowerQuery = query.toLowerCase()
     const filtered = TEST_MOVIES.filter(
       (movie) =>
-        movie.title.toLowerCase().includes(query) ||
-        movie.genre.toLowerCase().includes(query) ||
-        String(movie.year).includes(query)
+        movie.title.toLowerCase().includes(lowerQuery) ||
+        movie.genre.toLowerCase().includes(lowerQuery) ||
+        String(movie.year).includes(lowerQuery)
     )
     //fallback to TEST_MOVIES if sample search term doesn't match specific titles
     setMovies(filtered.length > 0 ? filtered : TEST_MOVIES)
@@ -95,10 +127,15 @@ function App() {
         onClearAll={handleClearAllRatings}
       />
 
+      <Recommendations
+        userRatings={userRatings}
+        movieCatalog={movieCatalog}
+      />
+
       <section className="moviesSection" aria-labelledby="movies-to-rate-heading">
         <div className="sectionHeader">
           <h2 id="movies-to-rate-heading">Movies to Rate</h2>
-          {movies.length < TEST_MOVIES.length && (
+          {movies !== TEST_MOVIES && (
             <button
               type="button"
               className="resetFilterBtn"
