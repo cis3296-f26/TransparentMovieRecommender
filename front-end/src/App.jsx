@@ -3,67 +3,49 @@ import SearchBox from './components/SearchBox'
 import MovieList from './components/MovieList'
 import RatedMovies from './components/RatedMovies'
 import Recommendations from './components/Recommendations'
-import { TEST_MOVIES } from './sampleMovieList.js'
 import './App.css'
 
 function App() {
-  const [movies, setMovies] = useState(TEST_MOVIES)
+  const [movies, setMovies] = useState(null)
   //stores { [movieId]: ratingFloat } where rating is 0.5 to 5.0 in 0.5 increments.
   //rating the same movie again overwrites its entry and keeps the newest rating.
   const [userRatings, setUserRatings] = useState({})
-  const [movieCatalog, setMovieCatalog] = useState(() => {
-    const map = {}
-    TEST_MOVIES.forEach((m) => {
-      map[m.id] = m
-    })
-    return map
-  })
+  const [movieCatalog, setMovieCatalog] = useState({})
 
   const handleSearch = async (searchTerm) => {
     const query = (searchTerm || '').trim()
     if (!query) {
-      setMovies(TEST_MOVIES)
       return
     }
 
     try {
       const res = await fetch(`/search?q=${encodeURIComponent(query)}`)
-      if (res.ok) {
-        const backendResults = await res.json()
-        if (Array.isArray(backendResults) && backendResults.length > 0) {
-          const normalizedMovies = backendResults.map((item) => {
-            const yearMatch = item.title.match(/\s*\((\d{4})\)$/)
-            const year = yearMatch ? parseInt(yearMatch[1], 10) : 'N/A'
-            const cleanTitle = item.title.replace(/\s*\(\d{4}\)$/, '')
+      if (!res.ok) throw new Error('Search failed')
 
-            return {
-              id: item.movieId,
-              title: cleanTitle,
-              year: year,
-              genre: 'N/A',
-              rating: 'N/A',
-              numRatings: item.num_ratings,
-              overview: 'Overview not available yet.',
-            }
-          })
+      const backendResults = await res.json()
 
-          setMovies(normalizedMovies)
-          return
+      const normalizedMovies = backendResults.map((item) => {
+        // Separate trailing (YYYY) from title to avoid duplicate year display
+        const yearMatch = item.title.match(/\s*\((\d{4})\)$/)
+        const year = yearMatch ? parseInt(yearMatch[1], 10) : 'N/A'
+        const cleanTitle = item.title.replace(/\s*\(\d{4}\)$/, '')
+
+        return {
+          id: item.movieId,
+          title: cleanTitle,
+          year: year,
+          genre: 'N/A',
+          rating: 'N/A',
+          numRatings: item.num_ratings,
+          overview: 'Overview not available yet.',
         }
-      }
-    } catch {
-      // Fallback to local sample movie list when backend /search is unreachable
-    }
+      })
 
-    const lowerQuery = query.toLowerCase()
-    const filtered = TEST_MOVIES.filter(
-      (movie) =>
-        movie.title.toLowerCase().includes(lowerQuery) ||
-        movie.genre.toLowerCase().includes(lowerQuery) ||
-        String(movie.year).includes(lowerQuery)
-    )
-    //fallback to TEST_MOVIES if sample search term doesn't match specific titles
-    setMovies(filtered.length > 0 ? filtered : TEST_MOVIES)
+      setMovies(normalizedMovies)
+    } catch (err) {
+      console.error('Error fetching search results:', err)
+      setMovies([])
+    }
   }
 
   const handleRateMovie = (movieId, ratingValue) => {
@@ -135,15 +117,6 @@ function App() {
       <section className="moviesSection" aria-labelledby="movies-to-rate-heading">
         <div className="sectionHeader">
           <h2 id="movies-to-rate-heading">Movies to Rate</h2>
-          {movies !== TEST_MOVIES && (
-            <button
-              type="button"
-              className="resetFilterBtn"
-              onClick={() => setMovies(TEST_MOVIES)}
-            >
-              Show All Movies ({TEST_MOVIES.length})
-            </button>
-          )}
         </div>
         <MovieList
           movies={movies}
