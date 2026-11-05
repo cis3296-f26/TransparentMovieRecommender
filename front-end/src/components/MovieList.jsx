@@ -22,7 +22,7 @@ function MovieList({ movies, userRatings = {}, onRateMovie }) {
               <span className={styles.genre}>{movie.genre}</span>
               <div className={styles.ratingBadges}>
                 <span className={styles.rating} title="Community Rating">
-                  IMDb ★ {movie.rating}
+                  ★ {movie.rating}
                 </span>
                 {userRating !== undefined && (
                   <span className={styles.userRatingBadge}>

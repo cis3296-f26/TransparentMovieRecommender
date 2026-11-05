@@ -18,20 +18,41 @@ function App() {
     return map
   })
 
-  const handleSearch = (searchTerm) => {
-    const query = (searchTerm || '').trim().toLowerCase()
+  const handleSearch = async (searchTerm) => {
+    const query = (searchTerm || '').trim()
     if (!query) {
       setMovies(TEST_MOVIES)
       return
     }
-    const filtered = TEST_MOVIES.filter(
-      (movie) =>
-        movie.title.toLowerCase().includes(query) ||
-        movie.genre.toLowerCase().includes(query) ||
-        String(movie.year).includes(query)
-    )
-    //fallback to TEST_MOVIES if sample search term doesn't match specific titles
-    setMovies(filtered.length > 0 ? filtered : TEST_MOVIES)
+
+    try {
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}`)
+      if (!res.ok) throw new Error('Search failed')
+
+      const backendResults = await res.json()
+
+      const normalizedMovies = backendResults.map((item) => {
+        // Separate trailing (YYYY) from title to avoid duplicate year display
+        const yearMatch = item.title.match(/\s*\((\d{4})\)$/)
+        const year = yearMatch ? parseInt(yearMatch[1], 10) : 'N/A'
+        const cleanTitle = item.title.replace(/\s*\(\d{4}\)$/, '')
+
+        return {
+          id: item.movieId,
+          title: cleanTitle,
+          year: year,
+          genre: 'N/A',
+          rating: 'N/A',
+          numRatings: item.num_ratings,
+          overview: 'Overview not available yet.',
+        }
+      })
+
+      setMovies(normalizedMovies)
+    } catch (err) {
+      console.error('Error fetching search results:', err)
+      setMovies([])
+    }
   }
 
   const handleRateMovie = (movieId, ratingValue) => {
@@ -98,13 +119,13 @@ function App() {
       <section className="moviesSection" aria-labelledby="movies-to-rate-heading">
         <div className="sectionHeader">
           <h2 id="movies-to-rate-heading">Movies to Rate</h2>
-          {movies.length < TEST_MOVIES.length && (
+          {movies !== TEST_MOVIES && (
             <button
               type="button"
               className="resetFilterBtn"
               onClick={() => setMovies(TEST_MOVIES)}
             >
-              Show All Movies ({TEST_MOVIES.length})
+              Show Default Movies ({TEST_MOVIES.length})
             </button>
           )}
         </div>
