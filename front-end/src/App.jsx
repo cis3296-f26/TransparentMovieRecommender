@@ -2,26 +2,18 @@ import { useState } from 'react'
 import SearchBox from './components/SearchBox'
 import MovieList from './components/MovieList'
 import RatedMovies from './components/RatedMovies'
-import { TEST_MOVIES } from './sampleMovieList.js'
 import './App.css'
 
 function App() {
-  const [movies, setMovies] = useState(TEST_MOVIES)
+  const [movies, setMovies] = useState(null)
   //stores { [movieId]: ratingFloat } where rating is 0.5 to 5.0 in 0.5 increments.
   //rating the same movie again overwrites its entry and keeps the newest rating.
   const [userRatings, setUserRatings] = useState({})
-  const [movieCatalog, setMovieCatalog] = useState(() => {
-    const map = {}
-    TEST_MOVIES.forEach((m) => {
-      map[m.id] = m
-    })
-    return map
-  })
+  const [movieCatalog, setMovieCatalog] = useState({})
 
   const handleSearch = async (searchTerm) => {
     const query = (searchTerm || '').trim()
     if (!query) {
-      setMovies(TEST_MOVIES)
       return
     }
 
@@ -119,15 +111,6 @@ function App() {
       <section className="moviesSection" aria-labelledby="movies-to-rate-heading">
         <div className="sectionHeader">
           <h2 id="movies-to-rate-heading">Movies to Rate</h2>
-          {movies !== TEST_MOVIES && (
-            <button
-              type="button"
-              className="resetFilterBtn"
-              onClick={() => setMovies(TEST_MOVIES)}
-            >
-              Show Default Movies ({TEST_MOVIES.length})
-            </button>
-          )}
         </div>
         <MovieList
           movies={movies}

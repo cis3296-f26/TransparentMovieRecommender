@@ -1,9 +1,13 @@
-// movie is entered as a list, please look at sampleMovieList.js for an example,
+// movie list component that displays a list of movies with their details and allows users to rate them
 import styles from './MovieList.module.css'
 import RatingControl from './RatingControl'
 
 function MovieList({ movies, userRatings = {}, onRateMovie }) {
-  if (!movies || movies.length === 0) {
+  if (!movies) {
+    return <p className={styles.empty}>Search for a movie.</p>
+  }
+
+  if (movies.length === 0) {
     return <p className={styles.empty}>No movies found.</p>
   }
 
