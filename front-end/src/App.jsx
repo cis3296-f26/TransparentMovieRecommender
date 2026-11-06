@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SearchBox from './components/SearchBox'
 import MovieList from './components/MovieList'
 import RatedMovies from './components/RatedMovies'
+import Recommendations from './components/Recommendations'
 import './App.css'
 
 function App() {
@@ -106,6 +107,11 @@ function App() {
         onRateMovie={handleRateMovie}
         onRemoveRating={handleRemoveRating}
         onClearAll={handleClearAllRatings}
+      />
+
+      <Recommendations
+        userRatings={userRatings}
+        movieCatalog={movieCatalog}
       />
 
       <section className="moviesSection" aria-labelledby="movies-to-rate-heading">
