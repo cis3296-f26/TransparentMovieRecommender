@@ -75,7 +75,6 @@ class CollaborativeFilter:
         Returns:
             pd.Series: Weighted sum of ratings for each movie.
         """
-        
         predictions = {}
 
         for candidate_id in similarities.columns:
@@ -92,3 +91,27 @@ class CollaborativeFilter:
                 predictions[candidate_id] = predicted_rating
 
         return pd.Series(predictions, dtype=float)
+    
+    def breakdown(self, user_ratings: dict[int, float], movie_id: int) -> pd.Series:
+        """Compute how much each of the user's ratings contributed to one movie's recommendation.
+        
+        Args:
+            user_ratings (dict[int, float]): User ratings for movies.
+            movie_id (int): ID of a recommended movie.
+
+        Returns:
+            pd.Series: Weight of each rated movie that counted, indexed by movie ID and sorted largest first. The weights add up to 1.
+        """
+        # Compute similarities between the given movie and all other movies
+        similarities = self._similarities([movie_id])
+
+        # Filter out rated movies that are not in the movie vectors
+        rated_movie_ids = [movie for movie in user_ratings if movie in similarities.columns]
+
+        # Get the similarities for the rated movies and filter out zero similarities
+        rated_similarities = similarities.loc[movie_id, rated_movie_ids]
+        rated_similarities = rated_similarities[rated_similarities != 0]
+
+        # Compute the weights by normalizing the similarities
+        weights = rated_similarities / rated_similarities.sum()
+        return weights.sort_values(ascending=False)
