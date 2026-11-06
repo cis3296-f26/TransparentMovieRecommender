@@ -34,9 +34,9 @@ function App() {
           title: cleanTitle,
           year: year,
           genre: 'N/A',
-          rating: 'N/A',
+          rating: item.average_rating ? item.average_rating.toFixed(1) : 'N/A',
           numRatings: item.num_ratings,
-          overview: 'Overview not available yet.',
+          overview: item.overview || 'Overview not available',
         }
       })
 

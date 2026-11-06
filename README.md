@@ -40,7 +40,7 @@ You need Git installed. On macOS and Linux you also need Python 3. On Windows, t
    curl -O https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
    unzip ml-latest-small.zip
    mkdir -p data
-   mv ml-latest-small/ratings.csv ml-latest-small/movies.csv data/
+   mv ml-latest-small/ratings.csv ml-latest-small/movies.csv ml-latest-small/links.csv data/
    ```
 
 ### Windows (10 and 11)
