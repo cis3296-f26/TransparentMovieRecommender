@@ -46,7 +46,7 @@ function Recommendations({userRatings = {},}) {
         if (!isCancelled) {
           setFetchState({
             key: requestPayload,
-            items: data.recommendations, 
+            items: data.recommendations || [], 
           })
         }
       } catch {
