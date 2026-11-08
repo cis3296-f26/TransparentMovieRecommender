@@ -1,15 +1,10 @@
 import { useState, useEffect } from 'react'
 import styles from './Recommendations.module.css'
+import RecommendationBreakdown from './RecommendationBreakdown'
 
 const REQUIRED_RATINGS = 5
-const MAX_RECOMMENDATIONS = 10
 
-function Recommendations({
-  userRatings = {},
-  movieCatalog = {},
-  recommendations: externalRecommendations,
-  isLoading: externalIsLoading,
-}) {
+function Recommendations({userRatings = {},}) {
   const ratedEntries = Object.entries(userRatings)
   const ratedCount = ratedEntries.length
   const ratingsNeeded = Math.max(0, REQUIRED_RATINGS - ratedCount)
@@ -26,7 +21,7 @@ function Recommendations({
   })
 
   useEffect(() => {
-    if (!requestPayload || externalRecommendations !== undefined) {
+    if (!requestPayload) {
       return
     }
 
@@ -45,55 +40,13 @@ function Recommendations({
         if (!res.ok) {
           throw new Error(`Failed to fetch recommendations (${res.status})`)
         }
-
+        
         const data = await res.json()
-        const rawList = Array.isArray(data?.recommendations)
-          ? data.recommendations.slice(0, MAX_RECOMMENDATIONS)
-          : []
-
-        const resolvedItems = await Promise.all(
-          rawList.map(async (item) => {
-            const movieId = Number(item.movieId ?? item.id)
-            const predictedRating = Number(
-              item.predicted_rating ?? item.predictedRating ?? 0
-            )
-
-            if (item.title) {
-              return {
-                movieId,
-                title: item.title,
-                predictedRating,
-              }
-            }
-
-            try {
-              const movieRes = await fetch(`/movie/${movieId}`)
-              if (movieRes.ok) {
-                const movieData = await movieRes.json()
-                if (movieData?.title) {
-                  return {
-                    movieId,
-                    title: movieData.title,
-                    predictedRating,
-                  }
-                }
-              }
-            } catch {
-              // Ignore per-movie lookup error and fall back to local catalog or ID
-            }
-
-            return {
-              movieId,
-              title: `Movie #${movieId}`,
-              predictedRating,
-            }
-          })
-        )
 
         if (!isCancelled) {
           setFetchState({
             key: requestPayload,
-            items: resolvedItems,
+            items: data.recommendations, 
           })
         }
       } catch {
@@ -111,39 +64,11 @@ function Recommendations({
     return () => {
       isCancelled = true
     }
-  }, [requestPayload, externalRecommendations])
+  }, [requestPayload])
 
-  const isLoading =
-    externalIsLoading !== undefined
-      ? externalIsLoading
-      : hasEnoughRatings &&
-        externalRecommendations === undefined &&
-        fetchState.key !== requestPayload
-
-  const recommendationList = (
-    externalRecommendations !== undefined
-      ? externalRecommendations
-      : fetchState.items
-  )
-    .slice(0, MAX_RECOMMENDATIONS)
-    .map((item) => {
-      const movieId = Number(item.movieId ?? item.id)
-      const predictedRating = Number(
-        item.predictedRating ?? item.predicted_rating ?? 0
-      )
-      const fallbackTitle =
-        movieCatalog[movieId]?.title || `Movie #${movieId}`
-      const title =
-        item.title && item.title !== `Movie #${movieId}`
-          ? item.title
-          : fallbackTitle
-
-      return {
-        movieId,
-        title,
-        predictedRating,
-      }
-    })
+  // Determine the source of recommendations and loading state
+  const isLoading = hasEnoughRatings && fetchState.key !== requestPayload
+  const recommendationList = fetchState.items
 
   const progressPercent = Math.min(
     100,
@@ -226,11 +151,12 @@ function Recommendations({
                 <span className={styles.predictionLabel}>Predicted Rating:</span>
                 <span
                   className={styles.predictedValue}
-                  aria-label={`Predicted rating ${rec.predictedRating.toFixed(2)} out of 5`}
+                  aria-label={`Predicted rating ${rec.predicted_rating.toFixed(2)} out of 5`}
                 >
-                  ★ {rec.predictedRating.toFixed(2)} / 5
+                  ★ {rec.predicted_rating.toFixed(2)} / 5
                 </span>
               </div>
+              <RecommendationBreakdown breakdown={rec.breakdown} />
             </li>
           ))}
         </ol>
