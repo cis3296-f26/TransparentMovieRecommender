@@ -1,0 +1,46 @@
+/* Styling sheet for the RecommendationBreakdown component */
+.breakdown {
+    flex-basis: 100%; 
+    width: 100%;
+    margin-top: 0.25rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  
+  /* Styling for each item in the recommendation breakdown */
+  .breakdownItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    background-color: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    font-size: 0.85rem;
+  }
+  
+  /* Styling for the movie title in the breakdown item */
+  .movieTitle {
+    font-weight: 600;
+    color: var(--text-h); 
+    flex: 1; 
+  }
+  
+  /* Styling for the movie rating in the breakdown item */
+  .movieRating {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #f59e0b;
+  }
+  
+  /* Styling for the movie weight in the breakdown item */
+  .movieWeight {
+    font-size: 0.8rem;
+    font-weight: 700; 
+    color: var(--accent); 
+  }
