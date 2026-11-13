@@ -93,3 +93,34 @@ def test_breakdown_leaves_out_movies_with_no_similarity():
     cf = CollaborativeFilter(ratings, min_ratings=1)
     breakdown = cf.breakdown({10: 4.0, 20: 2.5, 40: 5.0}, 30)
     assert list(breakdown.index) == [10, 20], "Movie 40 should be left out of the breakdown as it has no similarity to movie 30."
+
+# Extra rating so two recommendations have different scores: user 2 gives movie 40 a 4.0
+SORT_RATINGS = pd.concat([TEST_RATINGS, pd.DataFrame([(2, 40, 4.0)], columns=["userId", "movieId", "rating"])])
+
+# Test that a movie the user already rated is never recommended back.
+def test_recommend_leaves_out_rated_movies():
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    assert 10 not in cf.recommend({10: 4.0}).index, "Movie 10 was already rated, so it should not be recommended."
+
+# Test that the predicted rating matches a hand-worked example.
+def test_recommend_matches_hand_worked_example():
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    predictions = cf.recommend({10: 4.0, 20: 2.5})
+    assert predictions[30] == pytest.approx(3.4375), "Movie 30 should be (4.0*5 + 2.5*3) / (5 + 3) = 3.4375."
+
+# Test that recommendations are sorted highest predicted rating first.
+def test_recommend_sorted_highest_first():
+    cf = CollaborativeFilter(SORT_RATINGS, min_ratings=1)
+    predictions = cf.recommend({10: 5.0, 20: 1.0})
+    assert list(predictions.index) == [30, 40], "Movie 30 (3.5) should come before movie 40 (2.5)."
+
+# Test that n limits how many recommendations come back.
+def test_recommend_stops_at_n():
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    assert len(cf.recommend({10: 4.0}, n=1)) == 1, "Only 1 recommendation should come back when n=1."
+
+# Test that empty input or only unknown movies returns nothing instead of crashing.
+def test_recommend_empty_or_unknown_returns_nothing():
+    cf = CollaborativeFilter(TEST_RATINGS, min_ratings=1)
+    assert cf.recommend({}).empty, "No ratings should give no recommendations."
+    assert cf.recommend({999: 5.0}).empty, "Only an unknown movie should give no recommendations."
