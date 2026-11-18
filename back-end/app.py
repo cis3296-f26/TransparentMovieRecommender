@@ -61,10 +61,21 @@ def recommendations():
     results = []
 
     for movie_id, rating in predictions.items():
+        breakdown = cf.breakdown(converted_ratings, int(movie_id))
         results.append({
             "movieId": int(movie_id),
             "title": movies.title(int(movie_id)),
-            "predicted_rating": float(rating)
+            "predicted_rating": float(rating),
+            "breakdown": [ 
+                # For each movie that contributed to the prediction, include its ID, title, rating, and weight
+                {
+                    "movieId": int(rated_movie_id),
+                    "title": movies.title(int(rated_movie_id)),
+                    "rating": converted_ratings[int(rated_movie_id)],
+                    "weight": float(weight)
+                }
+                for rated_movie_id, weight in breakdown.items()
+            ],
         })
 
     return jsonify({"recommendations": results})
