@@ -111,7 +111,6 @@ function App() {
 
       <Recommendations
         userRatings={userRatings}
-        movieCatalog={movieCatalog}
       />
 
       <section className="moviesSection" aria-labelledby="movies-to-rate-heading">
