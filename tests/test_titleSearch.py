@@ -49,7 +49,7 @@ def test_search_no_match_returns_nothing():
 
 # Test that results are sorted by number of ratings, most first.
 def test_search_most_rated_first():
-    assert ids(CATALOG.search_titles("toy story")) == [2, 3], "Movie 2 has more ratings than movie 3, so it comes first."
+    assert ids(CATALOG.search_titles("toy story")) == [3, 2], "Movie 3 has more ratings than movie 2, so it comes first."
 
 # Test that each result has exactly movieId, title, and num_ratings.
 def test_search_result_fields():

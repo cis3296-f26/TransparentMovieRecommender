@@ -111,8 +111,8 @@ def test_recommend_matches_hand_worked_example():
 # Test that recommendations are sorted highest predicted rating first.
 def test_recommend_sorted_highest_first():
     cf = CollaborativeFilter(SORT_RATINGS, min_ratings=1)
-    predictions = cf.recommend({10: 5.0, 20: 1.0})
-    assert list(predictions.index) == [30, 40], "Movie 30 (3.5) should come before movie 40 (2.5)."
+    predictions = cf.recommend({10: 1.0, 20: 5.0})
+    assert list(predictions.index) == [40, 30], "Movie 40 (3.5) should come before movie 30 (2.5)."
 
 # Test that n limits how many recommendations come back.
 def test_recommend_stops_at_n():
