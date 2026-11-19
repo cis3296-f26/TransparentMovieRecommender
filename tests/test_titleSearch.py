@@ -7,10 +7,10 @@ TEST_MOVIES = pd.DataFrame([(1, "Matrix, The (1999)"),
                             (3, "Toy Story 2 (1999)")],
                            columns=["movieId", "title"])
 
-# Fake ratings: movie 1 has 3 ratings, movie 2 has 2, movie 3 has 1
+# Fake ratings: movie 1 has 3 ratings, movie 3 has 2, movie 2 has 1
 TEST_RATINGS = pd.DataFrame([(1, 1, 5.0), (2, 1, 4.0), (3, 1, 4.5),
-                             (1, 2, 3.0), (2, 2, 4.0),
-                             (1, 3, 2.0)],
+                             (1, 3, 3.0), (2, 3, 4.0),
+                             (1, 2, 2.0)],
                             columns=["userId", "movieId", "rating"])
 
 CATALOG = MovieCatalog(TEST_MOVIES, TEST_RATINGS)
