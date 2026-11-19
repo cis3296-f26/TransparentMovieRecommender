@@ -60,3 +60,9 @@ def test_search_result_fields():
 # Test that no more than `limit` results are returned.
 def test_search_stops_at_limit():
     assert len(CATALOG.search_titles("toy", limit=1)) == 1, "Only 1 result should come back when limit=1."
+
+
+# Test that title() returns the readable title for a movie ID.
+def test_title_returns_readable_title():
+    assert CATALOG.title(1) == "The Matrix (1999)", "title() should move 'The' to the front."
+    assert CATALOG.title(2) == "Toy Story (1995)", "A title without an article should stay the same."
