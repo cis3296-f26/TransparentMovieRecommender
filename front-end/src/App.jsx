@@ -1,97 +1,134 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import SearchBox from './components/SearchBox'
 import MovieList from './components/MovieList'
 import RatedMovies from './components/RatedMovies'
 import Recommendations from './components/Recommendations'
 import './App.css'
 
+const TRAILING_YEAR_REGEX = /\s*\((\d{4})\)$/
+const MIN_RATING = 0.5
+const MAX_RATING = 5
+
+function isValidRating(value) {
+  const num = Number(value)
+  return (
+    !Number.isNaN(num) &&
+    num >= MIN_RATING &&
+    num <= MAX_RATING &&
+    Math.round(num * 2) === num * 2
+  )
+}
+
+function normalizeMovie(item) {
+  const rawTitle = item.title ?? ''
+  const yearMatch = rawTitle.match(TRAILING_YEAR_REGEX)
+
+  return {
+    id: item.movieId,
+    title: yearMatch ? rawTitle.replace(TRAILING_YEAR_REGEX, '') : rawTitle,
+    year: yearMatch ? parseInt(yearMatch[1], 10) : 'N/A',
+    genre: 'N/A',
+    rating: 'N/A',
+    numRatings: item.num_ratings,
+    overview: 'Overview not available yet.',
+  }
+}
+
 function App() {
   const [movies, setMovies] = useState(null)
-  //stores { [movieId]: ratingFloat } where rating is 0.5 to 5.0 in 0.5 increments.
-  //rating the same movie again overwrites its entry and keeps the newest rating.
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState(null)
+
+  // Stores { [movieId]: ratingFloat } (0.5 to 5.0 in 0.5 increments)
   const [userRatings, setUserRatings] = useState({})
+  // Explicitly tracks rating order because JS objects sort numeric keys ascending
+  const [ratingOrder, setRatingOrder] = useState([])
   const [movieCatalog, setMovieCatalog] = useState({})
 
-  const handleSearch = async (searchTerm) => {
+  const moviesRef = useRef(null)
+  const abortControllerRef = useRef(null)
+
+  useEffect(() => {
+    return () => abortControllerRef.current?.abort()
+  }, [])
+
+  const handleSearch = useCallback(async (searchTerm) => {
     const query = (searchTerm || '').trim()
-    if (!query) {
-      return
-    }
+    if (!query) return
+
+    abortControllerRef.current?.abort()
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+
+    setIsSearching(true)
+    setSearchError(null)
 
     try {
-      const res = await fetch(`/search?q=${encodeURIComponent(query)}`)
-      if (!res.ok) throw new Error('Search failed')
+      const res = await fetch(`/search?q=${encodeURIComponent(query)}`, {
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error(`Search failed (${res.status})`)
 
       const backendResults = await res.json()
+      const normalizedMovies = backendResults.map(normalizeMovie)
 
-      const normalizedMovies = backendResults.map((item) => {
-        // Separate trailing (YYYY) from title to avoid duplicate year display
-        const yearMatch = item.title.match(/\s*\((\d{4})\)$/)
-        const year = yearMatch ? parseInt(yearMatch[1], 10) : 'N/A'
-        const cleanTitle = item.title.replace(/\s*\(\d{4}\)$/, '')
-
-        return {
-          id: item.movieId,
-          title: cleanTitle,
-          year: year,
-          genre: 'N/A',
-          rating: 'N/A',
-          numRatings: item.num_ratings,
-          overview: 'Overview not available yet.',
-        }
-      })
-
+      moviesRef.current = normalizedMovies
       setMovies(normalizedMovies)
     } catch (err) {
+      if (err.name === 'AbortError') return
       console.error('Error fetching search results:', err)
+      setSearchError('Could not load search results. Please try again.')
+      moviesRef.current = []
       setMovies([])
+    } finally {
+      if (abortControllerRef.current === controller) {
+        setIsSearching(false)
+      }
     }
-  }
+  }, [])
 
-  const handleRateMovie = (movieId, ratingValue) => {
+  const handleRateMovie = useCallback((movieId, ratingValue) => {
+    if (!isValidRating(ratingValue)) return
     const numericRating = Number(ratingValue)
-    if (
-      Number.isNaN(numericRating) ||
-      numericRating < 0.5 ||
-      numericRating > 5 ||
-      Math.round(numericRating * 2) !== numericRating * 2
-    ) {
-      return
-    }
 
-    const foundMovie = movies.find((m) => m.id === movieId)
+    const foundMovie = moviesRef.current?.find((m) => m.id === movieId)
     if (foundMovie) {
-      setMovieCatalog((prev) => ({ ...prev, [movieId]: foundMovie }))
+      setMovieCatalog((prev) =>
+        prev[movieId] ? prev : { ...prev, [movieId]: foundMovie }
+      )
     }
 
-    setUserRatings((prev) => {
-      const next = { ...prev }
-      //deleting first and re-inserting updates insertion order so newest rating is kept
-      delete next[movieId]
-      next[movieId] = numericRating
-      return next
-    })
-  }
+    setUserRatings((prev) => ({ ...prev, [movieId]: numericRating }))
+    setRatingOrder((prev) => [...prev.filter((id) => id !== movieId), movieId])
+  }, [])
 
-  const handleRemoveRating = (movieId) => {
+  const handleRemoveRating = useCallback((movieId) => {
     setUserRatings((prev) => {
-      const next = { ...prev }
-      delete next[movieId]
-      return next
+      if (!(movieId in prev)) return prev
+      const { [movieId]: _, ...rest } = prev
+      return rest
     })
-  }
+    setRatingOrder((prev) => prev.filter((id) => id !== movieId))
+  }, [])
 
-  const handleClearAllRatings = () => {
+  const handleClearAllRatings = useCallback(() => {
     setUserRatings({})
-  }
+    setRatingOrder([])
+  }, [])
 
-  const ratedMoviesList = Object.entries(userRatings)
-    .map(([id, userRating]) => {
-      const numericId = Number(id)
-      const movie = movieCatalog[numericId]
-      return movie ? { ...movie, userRating } : null
-    })
-    .filter(Boolean)
+  const ratedMoviesList = useMemo(
+    () =>
+      ratingOrder
+        .map((id) => {
+          const movie = movieCatalog[id]
+          const userRating = userRatings[id]
+          return movie && userRating !== undefined
+            ? { ...movie, userRating }
+            : null
+        })
+        .filter(Boolean),
+    [ratingOrder, movieCatalog, userRatings]
+  )
 
   return (
     <main className="container">
@@ -118,11 +155,24 @@ function App() {
         <div className="sectionHeader">
           <h2 id="movies-to-rate-heading">Movies to Rate</h2>
         </div>
-        <MovieList
-          movies={movies}
-          userRatings={userRatings}
-          onRateMovie={handleRateMovie}
-        />
+
+        {searchError && (
+          <p className="errorMessage" role="alert">
+            {searchError}
+          </p>
+        )}
+
+        {isSearching ? (
+          <p className="loadingMessage" role="status">
+            Searching movies...
+          </p>
+        ) : (
+          <MovieList
+            movies={movies}
+            userRatings={userRatings}
+            onRateMovie={handleRateMovie}
+          />
+        )}
       </section>
     </main>
   )
